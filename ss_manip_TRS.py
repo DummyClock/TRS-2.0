@@ -69,7 +69,7 @@ def readReportFiles(path, client):
                 sheet_id = REG_REQUEST_ID
             else:                                # Assume Retraining
                 sheet_id = RETRAIN_REQUEST_ID
-            checkRequestSheet(df.iloc[rows,trainee_value_col],df.iloc[rows,pos_value_col], sheet_id)     # If a request was fulfilled, if so check it off
+            checkRequestSheet(df.iloc[rows,trainee_value_col],df.iloc[rows,pos_value_col], sheet_id, client)     # If a request was fulfilled, if so check it off
             api_request += 2
                     
             #Slack Message
@@ -151,8 +151,8 @@ def readRequestFiles(path, client):
             df.iloc[rows,trainee_col] = name[1] + ", " + name[0]
 
             #Append Batch for the Row
-            ss_column_indicies= [headers.index("Request Date")+1, headers.index("Employee Name")+1, headers.index("Requested Position")+1, headers.index("Fulfilled")+1, headers.index("Reasons for Request")+1]
-            values = [date.today().strftime("%m/%d/%Y").split()[0], df.iloc[rows,trainee_col], df.iloc[rows,pos_col], "--INSERT-CB--",df.iloc[rows, details_col]]
+            ss_column_indicies= [headers.index("Request Date")+1, headers.index("Employee Name")+1, headers.index("Requested Position")+1, headers.index("Fulfilled")+1, headers.index("Reasons for Request")+1, headers.index("Requested By")+1]
+            values = [date.today().strftime("%m/%d/%Y").split()[0], df.iloc[rows,trainee_col], df.iloc[rows,pos_col], "--INSERT-CB--",df.iloc[rows, details_col], df.iloc[rows, requestor_col]]
 
             #Set sheet id based on sent data
             if df.iloc[rows,training_type_col] == "Request Training":
@@ -248,7 +248,7 @@ def updateSkillChart(trainee_name, position, rating, client):
                 api_error_counter -= 1
 
 # When a training session is completed, check if there was a request associated with this training and mark it off
-def checkRequestSheet(trainee_name, position, sheet_id):
+def checkRequestSheet(trainee_name, position, sheet_id, client):
     #Get Sheet
     #Fail Safe for API Failure
     try:
@@ -349,7 +349,7 @@ def apiTimeOut(api_error_counter):
 
 
 
-#Testing code
+"""#Testing code
 from auth import SERVICE_KEY_JSON_FILE, SPREADSHEET_ID
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.projects']
 creds = Credentials.from_service_account_info(SERVICE_KEY_JSON_FILE, scopes=SCOPES)
@@ -359,4 +359,4 @@ path2 = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_requests'
 
 readReportFiles(path, client)
 readRequestFiles(path2, client)
-#test()
+#test()"""
