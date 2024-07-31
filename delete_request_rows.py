@@ -5,7 +5,7 @@ from google.oauth2.service_account import Credentials
 
 #from auth import SPREADSHEET_ID, SERVICE_KEY_JSON_FILE, REG_REQUEST_ID, RETRAIN_REQUEST_ID
 SPREADSHEET_ID = os.environ['SPREADSHEET_ID']
-SERVICE_KEY_JSON_FILE = os.environ['SERVICE_KEY_JSON_FILE']
+SERVICE_KEY_JSON_FILE = json.loads(os.environ["SERVICE_KEY_JSON_FILE"])
 REG_REQUEST_ID = os.environ['REG_REQUEST_ID']
 RETRAIN_REQUEST_ID = os.environ['RETRAIN_REQUEST_ID']
 
