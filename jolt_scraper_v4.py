@@ -7,7 +7,9 @@ from google.oauth2.service_account import Credentials
 import os
 import time
 
-from auth import EMAIL, PASSWORD
+#from auth import EMAIL, PASSWORD
+EMAIL = os.environ['EMAIL']
+PASSWORD = os.environ['PASSWORD']
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # Gets hidden values from Github Secrets - (Remove this block when testing on a locally)
