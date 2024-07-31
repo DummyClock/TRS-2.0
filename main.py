@@ -4,7 +4,8 @@ from jolt_scraper_v4 import downloadCSVs
 from google.oauth2.service_account import Credentials
 from ss_manip_TRS import readReportFiles, readRequestFiles
 
-from auth import SERVICE_KEY_JSON_FILE
+#from auth import SERVICE_KEY_JSON_FILE
+SERVICE_KEY_JSON_FILE = os.environ["SERVICE_KEY_JSON_FILE"]
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.projects']
 creds = Credentials.from_service_account_info(SERVICE_KEY_JSON_FILE, scopes=SCOPES)
 client = gspread.authorize(creds)
