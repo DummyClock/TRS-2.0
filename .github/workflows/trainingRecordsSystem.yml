@@ -1,0 +1,48 @@
+name: Run Jolt Scrapper Script
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs at Midnight on Sunday (UTC Time)
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12.4'
+        
+      - name: Install packages
+        run: | 
+          echo "Attempting to install packages"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt          
+
+      - name: Chrome setup
+        run: |
+          python -c "import chromedriver_autoinstaller; chromedriver_autoinstaller.install()"
+
+      - name: Run script
+        env:  
+          # Secrets needed (automatically read in as string values)
+          EMAIL: ${{ secrets.EMAIL }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SERVICE_KEY_JSON_FILE: ${{ secrets.SERVICE_KEY_JSON_FILE }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          SCRIPT_ID: ${{ secrets.SCRIPT_ID }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          INITIAL_SHEET_ID: ${{ secrets.INITIAL_SHEET_ID }}
+          SKILL_SHEET_ID: ${{ secrets.SKILL_SHEET_ID }}
+          REG_REQUEST_ID: ${{ secrets.REG_REQUEST_ID }}
+          RETRAIN_REQUEST_ID: ${{ secrets.RETRAIN_REQUEST_ID }}
+          TRAINER_GMAIL: ${{ secrets.TRAINER_GMAIL }}
+          TRAINER_GMAIL_PASSWORD: ${{ secrets.TRAINER_GMAIL_PASSWORD }}
+          
+        run: |
+          python main.py
+        
