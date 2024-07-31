@@ -1,8 +1,8 @@
 name: Run Monthly Request Spreadsheet Cleanup Script
 
 on:
-  #schedule:
-    #- cron: '0 0 * * 0'  # Runs at Midnight on Sunday (UTC Time)
+  schedule:
+    - cron: '0 0 * * 6'  # Runs at Midnight on Saturday(UTC Time)
   workflow_dispatch:
 
 jobs:
