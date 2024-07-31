@@ -30,11 +30,10 @@ jobs:
       - name: Run script
         env:  
           # Secrets needed (automatically read in as string values)
-          EMAIL: ${{ secrets.EMAIL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
           SERVICE_KEY_JSON_FILE: ${{ secrets.SERVICE_KEY_JSON_FILE }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          MASTER_SPREADSHEET_ID: ${{ secrets.MASTER_SPREADSHEET_ID }}
+          REG_REQUEST_ID: ${{ secrets.REG_REQUEST_ID }}
+          RETRAIN_REQUEST_ID: ${{ secrets.RETRAIN_REQUEST_ID }}
         run: |
           python delete_request_rows.py
         
