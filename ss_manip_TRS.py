@@ -181,7 +181,7 @@ def readRequestFiles(path, client):
                 api_error_counter -= 1
   
         # Call Google Scripts File to insert checkboxes & sort both sheets
-        web_app_url = 'https://script.google.com/macros/s/AKfycbxXKXtYg1sSq4V4Ldi7Faul7DtJfzmiyht-qq3R0eftlWzlaOHPmz53SsF0aHdh-U_6/exec'
+        web_app_url = 
         try:
             api_error = True
             api_error_counter = 3
