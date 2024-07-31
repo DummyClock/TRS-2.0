@@ -61,6 +61,10 @@ def readReportFiles(path, client):
         # Read each row for specific values & perform processed
         api_request = 0
         for rows in range(df.shape[0]):
+            # Fail safe for an incompleted row
+            if df.iloc[rows,trainee_value_col] == "--":
+                continue
+            
             #Fix Name Format in dataframe to be: Last, First
             name=df.iloc[rows,trainee_value_col].split()
             df.iloc[rows,trainee_value_col] = name[1] + ", " + name[0]
@@ -151,6 +155,10 @@ def readRequestFiles(path, client):
 
         
         for rows in range(df.shape[0]):
+            # Fail safe for an incompleted row
+            if df.iloc[rows,trainee_col] == "--":
+                continue
+            
             #Fix Name Format in dataframe to be: Last, First
             name=df.iloc[rows,trainee_col].split()
             df.iloc[rows,trainee_col] = name[1] + ", " + name[0]
