@@ -1,4 +1,4 @@
-name: Run Jolt Scrapper Script
+name: Run TRS 2.0 Script
 
 on:
   schedule:
