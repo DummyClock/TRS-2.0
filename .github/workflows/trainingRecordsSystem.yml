@@ -2,7 +2,7 @@ name: Run TRS 2.0 Script
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Runs at Midnight on Sunday (UTC Time)
+    - cron: '0 0 * * 0,4'  # Runs at Midnight on Sunday & Thursfay (UTC Time)
   workflow_dispatch:
 
 jobs:
