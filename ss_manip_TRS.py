@@ -144,7 +144,7 @@ def readRequestFiles(path, client):
                 retraining_request_sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(RETRAIN_REQUEST_ID)
                 all_values = training_request_sheet.get_all_values()
                 retraining_all_values = retraining_request_sheet.get_all_values()
-        except APIError as e:
+        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -184,7 +184,7 @@ def readRequestFiles(path, client):
             while api_error and api_error_counter > 0:
                 training_request_sheet.batch_update(training_requests_batch, value_input_option="USER_ENTERED")
                 retraining_request_sheet.batch_update(retraining_requests_batch, value_input_option="USER_ENTERED")
-        except APIError as e:
+        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -254,7 +254,7 @@ def updateSkillChart(trainee_name, position, rating, client):
                 #print(skillChartBatch)
                 sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(SKILL_SHEET_ID)
                 sheet.format(skillChartBatch[0], skillChartBatch[1])
-        except APIError as e:
+        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -281,7 +281,7 @@ def checkRequestSheet(trainee_name, position, sheet_id, client):
                     print("Hit")
                     sheet.update_cell(all_data.index(ss_row)+1, fulHeader+1, "TRUE")
                     break
-    except APIError as e:
+    except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -320,7 +320,7 @@ def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
             color = {"red": 0,"green": 0,"blue": 80}
             
             return (cell.Cell(row_count, col+1).address, {'backgroundColor': {"red": color['red'], "green": color['green'], "blue": color['blue']}})
-        except APIError as e:
+        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
             # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
             api_error = apiTimeOut(api_error_counter)
             api_error_counter -= 1
