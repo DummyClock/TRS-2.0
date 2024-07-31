@@ -42,7 +42,7 @@ jobs:
           RETRAIN_REQUEST_ID: ${{ secrets.RETRAIN_REQUEST_ID }}
           TRAINER_GMAIL: ${{ secrets.TRAINER_GMAIL }}
           TRAINER_GMAIL_PASSWORD: ${{ secrets.TRAINER_GMAIL_PASSWORD }}
-          
+          WEB: ${{ secrets.WEB }}
         run: |
           python main.py
         
