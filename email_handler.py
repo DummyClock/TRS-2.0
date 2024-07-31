@@ -3,7 +3,9 @@ import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from auth import TRAINER_GMAIL, TRAINER_GMAIL_PASSWORD
+#from auth import TRAINER_GMAIL, TRAINER_GMAIL_PASSWORD
+TRAINER_GMAIL = os.environ['TRAINER_GMAIL']
+TRAINER_GMAIL_PASSWORD = os.environ['TRAINER_GMAIL_PASSWORD']
 
 def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver):
     #print('lol', row_of_trainer_data)
