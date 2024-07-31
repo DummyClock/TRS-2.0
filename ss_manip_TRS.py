@@ -12,8 +12,12 @@ from email_handler import sendHTMLEmail
 
 MAX_API_REQUEST = 15
 
-from auth import SPREADSHEET_ID, SKILL_SHEET_ID, REG_REQUEST_ID, RETRAIN_REQUEST_ID, WEBHOOK_URL
-
+#from auth import SPREADSHEET_ID, SKILL_SHEET_ID, REG_REQUEST_ID, RETRAIN_REQUEST_ID, WEBHOOK_URL
+SPREADSHEET_ID = os.environ['SPREADSHEET_ID']
+SKILL_SHEET_ID = os.environ['SKILL_SHEET_ID']
+REG_REQUEST_ID = os.environ['REG_REQUEST_ID']
+RETRAIN_REQUEST_ID = os.environ['RETRAIN_REQUEST_ID']
+WEBHOOK_URL = os.environ['WEBHOOK_URL']
 
 # Will search the downloaded csv files in path for specific values (assuming the files are for Training Reports)
 def readReportFiles(path, client):
