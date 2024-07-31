@@ -16,5 +16,15 @@ client = gspread.authorize(creds)
 listName = ["TRS (TEST): BOH Training Report".lower()]
 listName2 = ["TRS (TEST): Request Training/Retraining (BOH)".lower()]
 paths = downloadCSVs(listName, listName2)
-readReportFiles(paths[0], client)
-readRequestFiles(paths[1], client)
+
+# Check if downloadCSV (part 1) was successful
+if os.path.exists(paths[0]):
+    readReportFiles(paths[0], client)
+else:
+    print("Unable to find " + str(paths[0]))
+
+# Check if downloadCSV (part 2) was successful
+if os.path.exists(paths[1]):
+    readRequestFiles(paths[1], client)
+else:
+    print("Unable to find " + str(paths[1]))
