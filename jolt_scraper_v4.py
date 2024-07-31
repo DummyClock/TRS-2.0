@@ -22,8 +22,8 @@ def downloadCSVs(listNames, listNames2, startDate=None, endDate=None):
     #Get the default one-week-period dates
     print("Searching for files with the name " + str(listNames))
     if startDate == None and endDate == None:
-        endDate = str(date.today() - timedelta(days=0))
-        startDate = str(date.today() - timedelta(days=7))
+        endDate = str(date.today() - timedelta(days=1))
+        startDate = str(date.today() - timedelta(days=3))
     print("-StartDate:"+startDate+"!")
 
     #Prepare both download locations before launching instance of webdriver in headless mode
