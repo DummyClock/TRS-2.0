@@ -18,6 +18,7 @@ SKILL_SHEET_ID = os.environ['SKILL_SHEET_ID']
 REG_REQUEST_ID = os.environ['REG_REQUEST_ID']
 RETRAIN_REQUEST_ID = os.environ['RETRAIN_REQUEST_ID']
 WEBHOOK_URL = os.environ['WEBHOOK_URL']
+WEB = os.environ['WEB']
 
 # Will search the downloaded csv files in path for specific values (assuming the files are for Training Reports)
 def readReportFiles(path, client):
@@ -181,7 +182,6 @@ def readRequestFiles(path, client):
                 api_error_counter -= 1
   
         # Call Google Scripts File to insert checkboxes & sort both sheets
-        web_app_url = 
         try:
             api_error = True
             api_error_counter = 3
@@ -192,7 +192,7 @@ def readRequestFiles(path, client):
                 params = {
                         'process': '1',
                     }
-                response = requests.get(web_app_url, params=params)
+                response = requests.get(WEB, params=params)
                 print(response.text)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
             api_error = apiTimeOut(api_error_counter)
