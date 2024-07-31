@@ -15,7 +15,19 @@ client = gspread.authorize(creds)
 #Testing the functions. (Downloads files & lists names of downloaded files)
 listName = ["TRS (TEST): BOH Training Report".lower()]
 listName2 = ["TRS (TEST): Request Training/Retraining (BOH)".lower()]
-paths = downloadCSVs(listName, listName2)
+
+#Download files
+attemps = 0
+maxAttempts = 3
+noeErorOccured = True
+while errorOccured and attemps < maxAttempts:
+    try:
+        errorOccured = False
+        paths = downloadCSVs(listName, listName2)
+    except WebDriverException as e:
+        print("Connection error occured. Reattempting to launch")
+        errorOccured = True
+        attemps += 1
 
 # Check if downloadCSV (part 1) was successful
 if os.path.exists(paths[0]):
