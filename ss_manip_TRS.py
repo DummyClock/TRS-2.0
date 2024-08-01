@@ -374,6 +374,6 @@ if __name__ == "__main__":
     readRequestFiles(path2, client)
     #test()
 
-readReportFiles(path, client)
-readRequestFiles(path2, client)
-#test()"""
+    readReportFiles(path, client)
+    readRequestFiles(path2, client)
+    #test()"""
