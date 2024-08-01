@@ -6,7 +6,7 @@ import json
 import requests
 from google.oauth2.service_account import Credentials
 from datetime import date
-from gspread.exceptions import APIError
+from gspread.exceptions import APIError, GSpreadException
 from gspread import cell
 from email_handler import sendHTMLEmail
 
@@ -61,10 +61,9 @@ def readReportFiles(path, client):
         # Read each row for specific values & perform processed
         api_request = 0
         for rows in range(df.shape[0]):
-            # Fail safe for an incompleted row
             if df.iloc[rows,trainee_value_col] == "--":
                 continue
-            
+
             #Fix Name Format in dataframe to be: Last, First
             name=df.iloc[rows,trainee_value_col].split()
             df.iloc[rows,trainee_value_col] = name[1] + ", " + name[0]
@@ -144,7 +143,7 @@ def readRequestFiles(path, client):
                 retraining_request_sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(RETRAIN_REQUEST_ID)
                 all_values = training_request_sheet.get_all_values()
                 retraining_all_values = retraining_request_sheet.get_all_values()
-        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
+        except (APIError, GSpreadException) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -155,11 +154,11 @@ def readRequestFiles(path, client):
 
         
         for rows in range(df.shape[0]):
-            # Fail safe for an incompleted row
             if df.iloc[rows,trainee_col] == "--":
                 continue
-            
+
             #Fix Name Format in dataframe to be: Last, First
+            print(df.iloc[rows, trainee_col])
             name=df.iloc[rows,trainee_col].split()
             df.iloc[rows,trainee_col] = name[1] + ", " + name[0]
 
@@ -184,7 +183,7 @@ def readRequestFiles(path, client):
             while api_error and api_error_counter > 0:
                 training_request_sheet.batch_update(training_requests_batch, value_input_option="USER_ENTERED")
                 retraining_request_sheet.batch_update(retraining_requests_batch, value_input_option="USER_ENTERED")
-        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
+        except (APIError, GSpreadException) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -254,7 +253,7 @@ def updateSkillChart(trainee_name, position, rating, client):
                 #print(skillChartBatch)
                 sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(SKILL_SHEET_ID)
                 sheet.format(skillChartBatch[0], skillChartBatch[1])
-        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
+        except (APIError, GSpreadException) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -281,7 +280,7 @@ def checkRequestSheet(trainee_name, position, sheet_id, client):
                     print("Hit")
                     sheet.update_cell(all_data.index(ss_row)+1, fulHeader+1, "TRUE")
                     break
-    except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
+    except (APIError, GSpreadException) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
@@ -320,7 +319,7 @@ def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
             color = {"red": 0,"green": 0,"blue": 80}
             
             return (cell.Cell(row_count, col+1).address, {'backgroundColor': {"red": color['red'], "green": color['green'], "blue": color['blue']}})
-        except (APIError, gspread.exceptions.GSpreadException, gspread.exception.TransportError) as e:
+        except (APIError, GSpreadException) as e:
             # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
             api_error = apiTimeOut(api_error_counter)
             api_error_counter -= 1
@@ -349,6 +348,7 @@ def removeDupCleaningTasks(list_of_dictionaries):
     #print(len(list_of_dictionaries))
     return list_of_dictionaries
 
+# Function that handles timeouts for an api error
 def apiTimeOut(api_error_counter):
     # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
     if api_error_counter > 0: 
@@ -361,13 +361,18 @@ def apiTimeOut(api_error_counter):
 
 
 
-"""#Testing code
-from auth import SERVICE_KEY_JSON_FILE, SPREADSHEET_ID
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.projects']
-creds = Credentials.from_service_account_info(SERVICE_KEY_JSON_FILE, scopes=SCOPES)
-client = gspread.authorize(creds)
-path = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_reports'
-path2 = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_requests'
+#Testing code
+if __name__ == "__main__":
+    from auth import SERVICE_KEY_JSON_FILE, SPREADSHEET_ID
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.projects']
+    creds = Credentials.from_service_account_info(SERVICE_KEY_JSON_FILE, scopes=SCOPES)
+    client = gspread.authorize(creds)
+    path = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_reports'
+    path2 = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_requests'
+
+    readReportFiles(path, client)
+    readRequestFiles(path2, client)
+    #test()
 
 readReportFiles(path, client)
 readRequestFiles(path2, client)
