@@ -316,7 +316,8 @@ def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
                 print("Trainee in Skill Chart not found. Adding a new entry for them...")
                 sheet.update_cell(row_count, 1, trainee)
 
-            color = {"red": 0,"green": 0,"blue": 80}
+            # Set the color based on the rating
+            color = getColor(rating)
             
             return (cell.Cell(row_count, col+1).address, {'backgroundColor': {"red": color['red'], "green": color['green'], "blue": color['blue']}})
         except (APIError, GSpreadException) as e:
@@ -324,6 +325,21 @@ def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
             api_error = apiTimeOut(api_error_counter)
             api_error_counter -= 1
             print(e)
+
+def getColor(rating):
+    if rating == 1:
+        return {"red": 205,"green": 0,"blue": 0}
+    elif rating == 2:
+        return {"red": 255,"green": 179,"blue": 0}
+    elif rating == 3:
+        return {"red": 255,"green": 255,"blue": 0}
+    elif rating == 4:
+        return {"red": 0,"green": 0,"blue": 80}
+    elif rating == 5:
+        return {"red": 0,"green": 236,"blue": 71}
+    
+    # Default (Error)
+    return {"red": 0,"green": 0,"blue": 0}
 
 def formatSkillChartBatch(row, columns, color):
     #print(cell.Cell(row-1, columns).address)
