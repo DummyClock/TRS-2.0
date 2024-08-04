@@ -39,10 +39,14 @@ if __name__ == "__main__":
             print("Connection error occured. Reattempting to launch in a minute...")
             errorOccured = True
             attemps += 1
+
+            # If the new directory has been created, clear it before reattempting downloads
             p1 = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_reports'
             p2 = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_requests'
-            clearDirectory(p1)   # Delete temp files; attempt to redownload after the wait time
-            clearDirectory(p2)
+            if os.path.exists(p1):   
+                clearDirectory(p1)   
+            if os.path.exists(p)2:   
+                clearDirectory(p2)
             time.sleep(60)
 
     # Check if downloadCSV (part 1) was successful
