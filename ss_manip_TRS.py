@@ -1,9 +1,4 @@
-import os
-import pandas as pd
-import gspread
-import time
-import json
-import requests
+import os, json, requests, time, gspread, pandas as pd
 from google.oauth2.service_account import Credentials
 from datetime import date
 from gspread.exceptions import APIError, GSpreadException
@@ -46,7 +41,6 @@ def readReportFiles(path, client):
         df.columns = new_header  
         
         # Get the columns indicies for specific header values
-        #print(df.columns)
         training_type_col = df.columns.get_loc(training_type_value)
         trainer_value_col = df.columns.get_loc(trainer_value)
         trainee_value_col = df.columns.get_loc(trainee_value)
@@ -58,9 +52,10 @@ def readReportFiles(path, client):
         email_value_col = df.columns.get_loc(email_value)
         email_body_value_col = df.columns.get_loc(email_body_value)
 
-        # Read each row for specific values & perform processed
+        # Read each row for specific values & perform processes
         api_request = 0
         for rows in range(df.shape[0]):
+            #Skip if missing data exists (only checks trainee name)
             if df.iloc[rows,trainee_value_col] == "--":
                 continue
 
@@ -68,15 +63,17 @@ def readReportFiles(path, client):
             name=df.iloc[rows,trainee_value_col].split()
             df.iloc[rows,trainee_value_col] = name[1] + ", " + name[0]
 
-            #Update the skill chart
-            updateSkillChart(df.iloc[rows,trainee_value_col], df.iloc[rows,pos_value_col], df.iloc[rows,rating_value_col], client)
-            api_request += 2
+            #Build the batch for the skill chart
+            skillChartBatch.append(rowBatch_sc(df.iloc[rows,trainee_value_col], df.iloc[rows,pos_value_col], df.iloc[rows,rating_value_col], client, SKILL_SHEET_ID))
+            api_request += 1
 
-            #Check which type of training was conducted and check it off from one of the Request sheets
+            #Check which type of training 
             if df.iloc[rows,training_type_col] == "Initial Training":
                 sheet_id = REG_REQUEST_ID
             else:                                # Assume Retraining
                 sheet_id = RETRAIN_REQUEST_ID
+            
+            #Check if a request was fulfilled
             checkRequestSheet(df.iloc[rows,trainee_value_col],df.iloc[rows,pos_value_col], sheet_id, client)     # If a request was fulfilled, if so check it off
             api_request += 2
                     
@@ -92,15 +89,16 @@ def readReportFiles(path, client):
             else:
                 print("Email was not requested.")
 
+            #Safeguard passing the minute quota
             if api_request > MAX_API_REQUEST:
                 print("Too many API request made. Taking a quick minute break...")
                 api_request = 0
                 time.sleep(60)
-
-    #return removeDupCleaningTasks(important_results)
-    #sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(SKILL_SHEET_ID)
-    #sheet.format(skillChartBatch)
-    #sheet.format('I6', {'backgroundColor': {'red': 0.0, 'green': 0.0, 'blue': 0.0}})
+    
+    #Commit batch update in Skill Chart
+    body = {'requests': skillChartBatch}
+    sheet = client.open_by_key(SPREADSHEET_ID)
+    sheet.batch_update(body=body)
     return skillChartBatch
 
 # Will search the downloaded csv files in path for specific values (assuming the files are for Requests)
@@ -148,17 +146,20 @@ def readRequestFiles(path, client):
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
 
+        #Get headers
         headers = all_values[0]
+
+        #Get number of rows in both sheets
         next_empty_row = len(all_values)+1  
         r_next_empty_row = len(retraining_all_values)+1
 
-        
+        # Read each row for specific values & perform processes
         for rows in range(df.shape[0]):
             if df.iloc[rows,trainee_col] == "--":
                 continue
 
             #Fix Name Format in dataframe to be: Last, First
-            print(df.iloc[rows, trainee_col])
+            #print(df.iloc[rows, trainee_col]) comment out (prints trainees full name)
             name=df.iloc[rows,trainee_col].split()
             df.iloc[rows,trainee_col] = name[1] + ", " + name[0]
 
@@ -174,13 +175,13 @@ def readRequestFiles(path, client):
                 retraining_requests_batch.extend(formatRequestBatch(next_empty_row, ss_column_indicies, values))
                 r_next_empty_row += 1
     
-        #print(training_requests_batch)
         try:
             api_error = True
             api_error_counter = 3
 
             #While loop checks for api failure
             while api_error and api_error_counter > 0:
+                api_error = False
                 training_request_sheet.batch_update(training_requests_batch, value_input_option="USER_ENTERED")
                 retraining_request_sheet.batch_update(retraining_requests_batch, value_input_option="USER_ENTERED")
         except (APIError, GSpreadException) as e:
@@ -200,7 +201,7 @@ def readRequestFiles(path, client):
                         'process': '1',
                     }
                 response = requests.get(WEB, params=params)
-                print(response.text)
+                #print(response.text)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
             api_error = apiTimeOut(api_error_counter)
             api_error_counter -= 1
@@ -235,32 +236,9 @@ def slackMsg(trainer, pupil, pos, details, feedback):
         print(f'Failed to post message. Status code: {response.status_code}')
         print(f'Response text: {response.text}')
 
-# Updates the Skill Chart within Google Sheets to keep track of what positions employees know
-def updateSkillChart(trainee_name, position, rating, client):
- #Store results pulled from csv file
-    # Read each row for specific values & perform processed
-        #Fail Safe for API Failure
-        try:
-            api_error = True
-            api_error_counter = 3
-            #While loop checks for api failure
-            while api_error and api_error_counter > 0:
-                #Build format request for Skill Chart
-                api_error = False
-                skillChartBatch=rowBatchForSkillChart(trainee_name, position, rating, client, SKILL_SHEET_ID)
-            
-                #Batch Add Rows to Initial Training 
-                #print(skillChartBatch)
-                sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(SKILL_SHEET_ID)
-                sheet.format(skillChartBatch[0], skillChartBatch[1])
-        except (APIError, GSpreadException) as e:
-                # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
-                api_error = apiTimeOut(api_error_counter)
-                api_error_counter -= 1
 
 # When a training session is completed, check if there was a request associated with this training and mark it off
 def checkRequestSheet(trainee_name, position, sheet_id, client):
-    #Get Sheet
     #Fail Safe for API Failure
     try:
         api_error = True
@@ -269,13 +247,14 @@ def checkRequestSheet(trainee_name, position, sheet_id, client):
             api_error = False
             sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(sheet_id)
             all_data = sheet.get_all_values()
+            batch = []
 
+            #Get header indecies
             empHeader = all_data[0].index("Employee Name")
             posHeader = all_data[0].index("Requested Position")
             fulHeader = all_data[0].index("Fulfilled")
 
             for ss_row in all_data:
-                #print("-",reformatted_name, df.iloc[rows,trainee_value_col])
                 if ss_row[empHeader] == trainee_name and ss_row[posHeader] == position and ss_row[fulHeader] == 'FALSE':
                     print("Hit")
                     sheet.update_cell(all_data.index(ss_row)+1, fulHeader+1, "TRUE")
@@ -285,9 +264,8 @@ def checkRequestSheet(trainee_name, position, sheet_id, client):
                 api_error = apiTimeOut(api_error_counter)
                 api_error_counter -= 1
 
-# INCOMPLETE: Doesn't update based on the rating of the employee
 # Returns a batch for the cell to color in; this'll document that the trainee has learned a new position
-def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
+def rowBatch_sc(trainee, pos, rating, client, sheet_id):
     #Fail Safe for API Failure
     api_error = True
     api_error_counter = 3
@@ -318,8 +296,29 @@ def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
 
             # Set the color based on the rating
             color = getColor(rating)
-            
-            return (cell.Cell(row_count, col+1).address, {'backgroundColor': {"red": color['red'], "green": color['green'], "blue": color['blue']}})
+
+            # Return dict request
+            return {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": row_count-1,
+                            "endRowIndex": row_count,
+                            "startColumnIndex": col,
+                            "endColumnIndex": col+1
+                                },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "backgroundColor": {
+                                    "red": color['red'],
+                                    "green": color["green"],
+                                    "blue": color["blue"]
+                                }
+                            }
+                        },
+                        "fields": "userEnteredFormat.backgroundColor"
+                    }
+                }
         except (APIError, GSpreadException) as e:
             # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
             api_error = apiTimeOut(api_error_counter)
@@ -327,19 +326,20 @@ def rowBatchForSkillChart(trainee, pos, rating, client, sheet_id):
             print(e)
 
 def getColor(rating):
-    if rating == 1:
+    if rating == '1':
         return {"red": 205,"green": 0,"blue": 0}
-    elif rating == 2:
+    elif rating == '2':
         return {"red": 255,"green": 179,"blue": 0}
-    elif rating == 3:
+    elif rating == '3':
         return {"red": 255,"green": 255,"blue": 0}
-    elif rating == 4:
+    elif rating == '4':
         return {"red": 0,"green": 0,"blue": 80}
-    elif rating == 5:
+    elif rating == '5':
         return {"red": 0,"green": 236,"blue": 71}
     
     # Default (Error)
     return {"red": 0,"green": 0,"blue": 0}
+        
 
 def formatSkillChartBatch(row, columns, color):
     #print(cell.Cell(row-1, columns).address)
@@ -350,7 +350,6 @@ def formatRequestBatch(row, columns, values):
     for i in range(len(columns)):
         a1_notation[cell.Cell(row, columns[i]).address] = values[i]
     return [{'range': c, 'values':[[value]]} for c, value in a1_notation.items()]
-
 
 # Removes a cleaning task that has a more recent date
 def removeDupCleaningTasks(list_of_dictionaries):
@@ -374,9 +373,6 @@ def apiTimeOut(api_error_counter):
         print("Unable to Google Sheets API right now. Skipping this process.")
     return True
 
-
-
-
 #Testing code
 if __name__ == "__main__":
     from auth import SERVICE_KEY_JSON_FILE, SPREADSHEET_ID
@@ -388,8 +384,3 @@ if __name__ == "__main__":
 
     readReportFiles(path, client)
     readRequestFiles(path2, client)
-    #test()
-
-    readReportFiles(path, client)
-    readRequestFiles(path2, client)
-    #test()"""
