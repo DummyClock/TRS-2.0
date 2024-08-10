@@ -1,52 +1,27 @@
-//Spreadsheet ID
-const spreadsheetId = "INSERT SPREADSHEET ID HERE"
-
-function doGet(e){
-  var process = e.parameter.process;
-  if(process == '1'){
+function autoSort(){
+  // Sort Request Sheets
     formatRequestSheet("Training Requests")
     formatRequestSheet("Retraining Requests")
 
-    const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName("Skill Board")
-    sortByOneColumn(sheet.getDataRange().offset(1, 0, sheet.getLastRow() - 1), 1)
-  }
-  if(process == '2'){
-    //var pupil = e.parameter.pupil;
-    //var trainer = e.parameter.trainer;
-    //var position = e.parameter.position;
-    //var details = e.parameter.details;
-    //var feedback = e.parameter.feedback;
-    //var slack_msg = e.parameter.slack_msg;
-    //generateSlackMessage("Training", 'pupil', 'trainer', 'position', 'details', 'feedback', 'slack_msg')
-    no()
-  }
-
-  // Return a simple response for debugging
-  return ContentService.createTextOutput('Request processed');
+  // Sort Skill Board Sheets
+    const ss = SpreadsheetApp.getActiveSpreadsheet()
+    const ws = ss.getSheetByName("Skill Board")
+    sortByOneColumn(ws.getDataRange().offset(1, 0), 1) 
 }
 
 function formatRequestSheet(sheetName) {
-  const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName)
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
   const data = sheet.getDataRange().getValues()
   const header = data[0]
 
   // Find indecies for header columns
   var fulfill_col = header.indexOf("Fulfilled")
-  var emp_col = header.indexOf("Employee Name")
-  var pos_col = header.indexOf("Requested Position")
+  //var emp_col = header.indexOf("Employee Name")
+  //var pos_col = header.indexOf("Requested Position")
   var request_date_col = header.indexOf("Request Date")
 
-  // Search for --INSERT-CB--' inside the sheet
-  for(var i=0; (i < data.length); i++)
-  {
-    if(data[i][fulfill_col] == '--INSERT-CB--'){
-      sheet.getRange(i+1, fulfill_col+1).clear()
-      sheet.getRange(i+1, fulfill_col+1).insertCheckboxes() // replace text with checkboxes
-    }
-  }
-
   // Autosort
-  sortByTwoColumns(sheet.getDataRange().offset(1, 0, sheet.getLastRow() - 1), fulfill_col+1, request_date_col+1)
+  sortByTwoColumns(sheet.getDataRange().offset(1, 0), fulfill_col+1, request_date_col+1)
 }
 
 /**
@@ -74,5 +49,3 @@ function sortByTwoColumns(range, col1, col2)
 {
   range.sort([{column: col1, ascending: true}, {column: col2, ascending: true}])
 }
-
-
