@@ -45,7 +45,7 @@ if __name__ == "__main__":
             p2 = os.path.dirname(os.path.realpath(__file__)) + '\\tmp_requests'
             if os.path.exists(p1):   
                 clearDirectory(p1)   
-            if os.path.exists(p)2:   
+            if os.path.exists(p2):   
                 clearDirectory(p2)
             time.sleep(60)
 
