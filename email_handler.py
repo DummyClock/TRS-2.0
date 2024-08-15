@@ -18,7 +18,7 @@ def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver):
 
     # Create MIMEText object
     message = MIMEMultipart("Alternative")
-    subject = "Training Report for_" +  row_of_headers[row_of_trainer_data.index("Position")] +"_| Chick-Fil-A"
+    subject = "Training Report for\s" +  row_of_headers[row_of_trainer_data.index("Position")] +"\s| Chick-Fil-A"
     message["Subject"] = subject
     message["From"] = sender
     message["To"] = receiver
@@ -76,10 +76,10 @@ def buildHTMLPart(header_data, training_data):
                 <table>
                     <tr>
                         <th>
-                            <div>Skills</div>
+                            <div>Info</div>
                         </th>
                         <td>
-                            <div>Results</div>
+                            <div>Details</div>
                         </td>
                     </tr>
     """
