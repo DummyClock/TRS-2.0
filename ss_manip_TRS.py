@@ -370,20 +370,32 @@ def rowBatch_sc(trainee, pos, rating, rows, sheet_id):
                 }
 
 def getColor(rating):
-    if rating == '1':
-        return {"red": 50,"green": 0,"blue": 0}
-    elif rating == '2':
-        return {"red": 1,"green": 0.647,"blue": 0}
-    elif rating == '3':
-        return {"red": 1,"green": 1,"blue": 0}
-    elif rating == '4':
-        return {"red": 0,"green": 0,"blue": 10}
+    if rating == '1' or rating == '2':
+        return {"red": 50,"green": 0,"blue": 0}             # Red
+    elif rating == '3' or rating == '4':
+        return {"red": 1,"green": 0.647,"blue": 0}          # Orange
     elif rating == '5':
-        return {"red": 0,"green": 10,"blue": 0}
+        return {"red": 1,"green": 1,"blue": 0}              # Yellow
+
     
     # Default (Error)
     print("Color for rating not found")
     return {"red": 0,"green": 0,"blue": 0}
+
+    """
+    #WILL USE FOR REINFORCEMENT REPORT
+    if rating == '1':
+        return {"red": 50,"green": 0,"blue": 0}             # Red
+    elif rating == '2':
+        return {"red": 1,"green": 0.647,"blue": 0}          # Orange
+    elif rating == '3':
+        return {"red": 1,"green": 1,"blue": 0}              # Yellow
+    elif rating == '4':
+        return {"red": 0,"green": 0,"blue": 10}             # Blue
+    elif rating == '5':
+        return {"red": 0,"green": 10,"blue": 0}             # Green
+                                                            # Missing Dark Green  
+    """
                                                                               
 def formatRequestBatch(row, columns, values):
     a1_notation = {}
