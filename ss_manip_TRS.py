@@ -19,15 +19,16 @@ WEBHOOK_URL = os.environ['WEBHOOK_URL']
 def readReportFiles(path, client):
     # Values to search for within the downloaded csv files
     training_type_value = "Which training was conducted?"
-    trainer_value = 'Trainer'
-    trainee_value = 'Trainee'
+    trainer_value = 'Trainer (You)'
+    trainee_value = 'Trainee (Student)'
     date_value = "Date"
     pos_value = 'Position Trainee was Trained On'
     rating_value = 'Please rate the Trainee 1-5 (Use the rubric above)'
     summ_value = 'Please provide a summary of the shift. (Please highlight the positive and your concerns).'
-    email_request_value = "Would you like to email the trainee?"
+    email_request_value = "Would the trainee like to be emailed a training report?"
+    pref_lang_value = "Trainee's Preferred Language"
     email_value = 'Trainee Email'
-    email_body_value = 'Optional: Advice & Feedback for Trainee'
+    email_body_value = 'Advice & Feedback for Trainee'
 
     """sheet = client.open_by_key(SPREADSHEET_ID).get_worksheet_by_id(sheet_id)
     all_request_data = sheet.get_all_values()"""
@@ -53,6 +54,7 @@ def readReportFiles(path, client):
         rating_value_col = df.columns.get_loc(rating_value)
         summ_value_col = df.columns.get_loc(summ_value)
         email_request_col = df.columns.get_loc(email_request_value)
+        pref_lang_col = df.columns.get_loc(pref_lang_value)
         email_value_col = df.columns.get_loc(email_value)
         email_body_value_col = df.columns.get_loc(email_body_value)
 
@@ -104,12 +106,18 @@ def readReportFiles(path, client):
             #Slack Message
             #slackMsg(str(df.iloc[rows,trainer_value_col]), str(df.iloc[rows,trainee_value_col]), str(df.iloc[rows,pos_value_col]), str(df.iloc[rows,summ_value_col]), str(df.iloc[rows,email_body_value_col]))
 
+            #Set language encoding
+            if df.iloc[rows,pref_lang_col] == "Spanish":
+                lang = 'es'
+            else:
+                lang = 'en'
+            
             #Email Trainee (if requested)
             if df.iloc[rows, email_request_col] == "YES":
                 print("Attempting to send email.")
                 headers = [df.iloc[rows,trainee_value_col], df.iloc[rows,trainer_value_col], df.iloc[rows,pos_value_col], df.iloc[rows,email_body_value_col]]
                 trainer_data = ["Trainee", "Trainer","Position", "Shift Summary"]
-                sendHTMLEmail(headers,trainer_data,df.iloc[rows, email_value_col])
+                sendHTMLEmail(headers,trainer_data,df.iloc[rows, email_value_col], lang)
             else:
                 print("Email was not requested.")
 
@@ -382,8 +390,7 @@ def getColor(rating):
     print("Color for rating not found")
     return {"red": 0,"green": 0,"blue": 0}
 
-    """
-    #WILL USE FOR REINFORCEMENT REPORT
+"""WILL USE FOR REINFORCEMENT REPORT
     if rating == '1':
         return {"red": 50,"green": 0,"blue": 0}             # Red
     elif rating == '2':
@@ -395,7 +402,7 @@ def getColor(rating):
     elif rating == '5':
         return {"red": 0,"green": 10,"blue": 0}             # Green
                                                             # Missing Dark Green  
-    """
+"""
                                                                               
 def formatRequestBatch(row, columns, values):
     a1_notation = {}
