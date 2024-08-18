@@ -1,7 +1,8 @@
-function autoSort(){
+// Time Triggered function (9am Everyday)
+function formatSS(){
   // Sort Request Sheets
-    formatRequestSheet("Training Requests")
-    formatRequestSheet("Retraining Requests")
+    autoSort("Training Requests")
+    autoSort("Retraining Requests")
 
   // Sort Skill Board Sheets
     const ss = SpreadsheetApp.getActiveSpreadsheet()
@@ -9,7 +10,31 @@ function autoSort(){
     sortByOneColumn(ws.getDataRange().offset(1, 0), 1) 
 }
 
-function formatRequestSheet(sheetName) {
+// Time Triggered function (12pm on the 1st of the month)
+function deleteOutdatedRequest(sheetName){
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
+  const data = sheet.getDataRange().getValues()
+  const header = data[0]
+
+  // Find indecies for header columns
+  var fulfill_col = header.indexOf("Fulfilled")
+  var request_date_col = header.indexOf("Request Date")
+
+  for (let i = data.length-1; i >= 0; --i){
+    date = data[i][request_date_col]
+    month = date.toString().split(" ")[1]
+    monthNum = getMonthNum(month)
+    var valid = checkDate(monthNum)
+    if (valid)
+    {
+      sheet.deleteRow(i+1)
+    }
+  }
+
+}
+
+// Sorts the requests sheets by the Fulfilled col & Request Date col
+function autoSort(sheetName) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
   const data = sheet.getDataRange().getValues()
   const header = data[0]
@@ -22,6 +47,69 @@ function formatRequestSheet(sheetName) {
 
   // Autosort
   sortByTwoColumns(sheet.getDataRange().offset(1, 0), fulfill_col+1, request_date_col+1)
+}
+
+function checkDate(month){
+  var monthOffset = 4;
+  var today = new Date();
+  var todayMonth = today.getMonth() + 1; 
+  //Logger.log("Month: " + today.getMonth())
+
+  if (todayMonth < month)
+    todayMonth = todayMonth + 12
+  
+  var diff_in_month = todayMonth - month
+  if (diff_in_month >= monthOffset)
+    return true
+  else
+    return false
+}
+
+function getMonthNum(month){
+  var monthNum;
+  switch(month) {
+    case "Jan":
+      monthNum = 1;
+      break;
+    case "Feb":
+      monthNum = 2;
+      break;
+    case "Mar":
+      monthNum = 3;
+      break;
+    case "Apr":
+      monthNum = 4;
+      break;
+    case "May":
+      monthNum = 5;
+      break;
+    case "Jun":
+      monthNum = 6;
+      break;
+    case "Jul":
+      monthNum = 7;
+      break;
+    case "Aug":
+      monthNum = 8;
+      break;
+    case "Sep":
+      monthNum = 9;
+      break;
+    case "Oct":
+      monthNum = 10;
+      break;
+    case "Nov":
+      monthNum = 11;
+      break;
+    case "Dec":
+      monthNum = 12;
+      break;
+    default:
+      monthNum = "Invalid month";
+      break;
+  }
+
+  return monthNum
 }
 
 /**
