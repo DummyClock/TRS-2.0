@@ -1,6 +1,6 @@
-import os
-import smtplib
-import time
+import os, smtplib, time
+from bs4 import BeautifulSoup
+from deep_translator import GoogleTranslator
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -8,21 +8,22 @@ from email.mime.multipart import MIMEMultipart
 TRAINER_GMAIL = os.environ['TRAINER_GMAIL']
 TRAINER_GMAIL_PASSWORD = os.environ['TRAINER_GMAIL_PASSWORD']
 
-def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver):
-    #print('lol', row_of_trainer_data)
+def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver, lang):
+    #Prepare HTML report
     html = buildHTMLPart(row_of_headers, row_of_trainer_data)
-    #print(html)
 
+    #Prepare email credentials
     smtpObj = smtplib.SMTP()
     sender = TRAINER_GMAIL
-
-    # Create MIMEText object
     message = MIMEMultipart("Alternative")
-    subject = "Training Report for\s" +  row_of_headers[row_of_trainer_data.index("Position")] +"\s| Chick-Fil-A"
+    subject = "Training Report for [" +  row_of_headers[row_of_trainer_data.index("Position")] +"] | Chick-Fil-A"
     message["Subject"] = subject
     message["From"] = sender
     message["To"] = receiver
 
+    #Attatch HTML text
+    if lang != 'en':
+      html = translateHTML(html, lang)
     html_msg = MIMEText(html, 'html')
     message.attach(html_msg)
 
@@ -44,6 +45,29 @@ def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver):
 
     return "email sent"
 
+def translateHTML(html, transTo):
+  soup = BeautifulSoup(html, 'html5lib')
+  translator = GoogleTranslator(source='en', target=transTo)
+  textNodes = []
+
+  #Get text nodes
+  for node in soup.find_all(string=True):
+    text = node.get_text()
+    if "\n" in text:
+       continue
+    textNodes.append(text)
+  translations = [translator.translate(text) for text in textNodes]
+
+  #Replace html's text elements
+  i = 0
+  for node in soup.find_all(string=True):
+    if "\n" in node.get_text():
+      continue
+    node.string.replace_with(translations[i])
+    i += 1
+
+  return str(soup)
+
 def buildHTMLPart(header_data, training_data):
     warning = "This an automated message. If you have any questions regarding your report, please refer to a lead or trainer. Likewise, if you're confused about your report or want advice, please refer to a lead or trainer. <br><br>"
     pos = header_data[training_data.index("Position")]
@@ -59,7 +83,7 @@ def buildHTMLPart(header_data, training_data):
             </style><img src='https://1000logos.net/wp-content/uploads/2021/04/Chick-fil-A-logo-500x281.png' alt='Chic-Fil-A> class="center"'
         </head>
         <body>
-            <h6 style="color:gray">Warning: Do not reply to email!<br>""" + warning + """</h6>
+            <h5 style="color:gray">Warning: Do not reply to email!<br>""" + warning + """</h5>
             <h1 align="left">""" + pos + """ Training Report</h1>
             <h3 align="left">What is this?</h3>
             <h5 align="left">This email contains a report documenting your performance training on """ + pos + """. Below you will find details on your performance; this report is designed to help you notice your strengths and weakness. </h5>
@@ -76,10 +100,10 @@ def buildHTMLPart(header_data, training_data):
                 <table>
                     <tr>
                         <th>
-                            <div>Info</div>
+                            <div>Details</div>
                         </th>
                         <td>
-                            <div>Details</div>
+                            <div>Info</div>
                         </td>
                     </tr>
     """
@@ -91,7 +115,9 @@ def buildHTMLPart(header_data, training_data):
     body1 = body1 + "</table></body><br><footer>"     #close table
 
     html_part2 = """
-                <h2 id='pathways_section'>Pathways Training Resources</h2><h3>What is this?</h3><p>Below are links to official Chic-Fil-A training resources. If you're looking for specific details regarding this position, these are the pages you should check! Feel free to use them as an additional reference! :)</p>
+                <h2 id='pathways_section'>Pathways Training Resources</h2><h3>What is this?</h3>
+                <p>Below are links to official Chic-Fil-A training resources. If you're looking for specific details regarding this position, these are the pages you should check! Feel free to use them as an additional reference! :)</p>
+                <p>Can't login? Ask a director to help retrieve your username or password. If you're unsure who is a director, ask your shift lead to help direct you towards them.</p>
                 <br><h3>Pathways Links</h3>
                 <div class='button-collection' align="center">""" + getPathwaysButtons(pos) + """</div>
                 <br><br><br>
@@ -101,7 +127,6 @@ def buildHTMLPart(header_data, training_data):
     """
 
     return html_part1 + body1 + html_part2
-
 
 def getPathwaysButtons(position):
     img = 'https://play-lh.googleusercontent.com/6CrgwWaEPe0J6e8RrS98b3StD3pD0zpQ6jpxMZEpkUCtbFYOpvk7riwoIxJYWq9j3D9c=w240-h480'
@@ -218,10 +243,3 @@ def generateHTMLButton(link, text, img):
     return  "<div class='button'><div class='img-section'><a href=" +link +"><img src='"+ img + "' alt='Training Module' width=100px></a></div><div class='text-section'><a style='text-decoration:none' href="+ link + "><div><h4>"+text+"</h4></div></a></div></div>"
 
 def apiTimeOut(api_error_counter):
-    # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
-    if api_error_counter > 0: 
-        print("Minute Quota for Google Sheets API reached (CLEANING_SPREADSHEET). Will attempt to access again. \n\tPlease wait a moment...\n\tAttempts Left: " + str(api_error_counter))
-        time.sleep(66)  
-    else:
-        print("Unable to Google Sheets API right now. Skipping this process.")
-    return True
