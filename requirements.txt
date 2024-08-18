@@ -6,3 +6,5 @@ google-auth-httplib2
 google-auth-oauthlib
 gspread
 pandas
+html5lib
+bs4
