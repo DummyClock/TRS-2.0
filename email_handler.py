@@ -208,9 +208,9 @@ def getPathwaysButtons(position):
       buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/99d12b0f-e973-4a8e-89c7-ef17552ef666', "3) Holding Cooked Breaded Chicken", img)      
 
       buttons = buttons + "</div>" + divHeader
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/e216d35c-d7ff-4b80-80d7-20bfed1dd3ce', "4) Lean Chicken Entrées (LCE) Overview", img);
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/0064e197-2d41-4046-9907-7041b48e17d6', "5) Automated Holding Assistant (AHA)", img);
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/581d36b4-fcc6-44e1-888f-903636acc73d', "Bonus: Centerline 2.0", img);
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/e216d35c-d7ff-4b80-80d7-20bfed1dd3ce', "4) Lean Chicken Entrées (LCE) Overview", img)
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/0064e197-2d41-4046-9907-7041b48e17d6', "5) Automated Holding Assistant (AHA)", img)
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/581d36b4-fcc6-44e1-888f-903636acc73d', "Bonus: Centerline 2.0", img)
 
       buttons = buttons + "</div>"
     elif position ==  "Set-Ups":
@@ -226,15 +226,15 @@ def getPathwaysButtons(position):
       buttons = buttons + "</div>" + divHeader
       buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/705687e4-965b-46b5-9184-24201b5ae605', "7) Cupping and Holding Mac & Cheese", img)
       buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/b4cd03cf-3775-4f62-9fa8-6f464c92916f', '8) Serving Chicken Noodle Soup', img)
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/e216d35c-d7ff-4b80-80d7-20bfed1dd3ce', "9) Lean Chicken Entrées (LCE) Overview", img);
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/e216d35c-d7ff-4b80-80d7-20bfed1dd3ce', "9) Lean Chicken Entrées (LCE) Overview", img)
 
       buttons = buttons + "</div>" + divHeader
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/0064e197-2d41-4046-9907-7041b48e17d6', "10) Automated Holding Assistant (AHA)", img);
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/0064e197-2d41-4046-9907-7041b48e17d6', "10) Automated Holding Assistant (AHA)", img)
       buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/99d12b0f-e973-4a8e-89c7-ef17552ef666', "11) Holding Cooked Breaded Chicken", img)
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/581d36b4-fcc6-44e1-888f-903636acc73d', "Bonus: Centerline 2.0", img);
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/doc/581d36b4-fcc6-44e1-888f-903636acc73d', "Bonus: Centerline 2.0", img)
       buttons = buttons + "</div>"
     else:
-      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/', "Pathways Home Page", img) + "</div>";
+      buttons = buttons + generateHTMLButton('https://www.pathway.cfahome.com/', "Pathways Home Page", img) + "</div>"
   
     return buttons
 
