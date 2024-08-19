@@ -67,11 +67,11 @@ What is the Skill Chart
 
 -   A spreadsheet that visualizes what positions are known by what team members. If a team member knows a position, the appropriate cell will be color coded
 
-![Screenshot 2024-08-18 203333](https://github.com/user-attachments/assets/c7480bc7-a687-4a52-ba28-e811df7c4d45)
+![Screenshot 2024-08-18 203333]
 
 Figure 1: Example Overview of Skill Chart. Please reference the Skill Key for Figure 2.
 
-![Screenshot 2024-08-18 203404](https://github.com/user-attachments/assets/31a917f9-27fb-4c5c-8d37-188113cdb6bc)
+![Screenshot 2024-08-18 203404]
 
 Figure 2: A color-coded key indicating skill levels
 
