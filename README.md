@@ -1,15 +1,15 @@
-# What is TRS?
+# What is TRS? 
 
-The Training Report SystemÂ
+The Training Report System 
 ---------------------------
 
--   A web application, designed to retrieve data from submitted Jolt reports and process it to fulfill unique training tasks for my workplace. TRS runs twice a week and uses Google SheetsÂ  as a "database" to store information related to these tasks.Â 
+-   A web application, designed to retrieve data from submitted Jolt reports and process it to fulfill unique training tasks for my workplace. TRS runs twice a week and uses Google Sheets  as a "database" to store information related to these tasks. 
 
--   TRS can visualize the various skills team members know within a Skill Chart, and process requests for training or retraining on specific positions.Â Â 
+-   TRS can visualize the various skills team members know within a Skill Chart, and process requests for training or retraining on specific positions.  
 
--   Additionally, TRS automatically sends messages, via Slack, regarding details on recent training completed. It also has the ability to send an optional email to team members regarding their performanceÂ  and receive feedback for training sessions
+-   Additionally, TRS automatically sends messages, via Slack, regarding details on recent training completed. It also has the ability to send an optional email to team members regarding their performance  and receive feedback for training sessions
 
-![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXdZekn_I1eUI9psLLFMQgSRBUG9m7Zutvi6-VWYSbEoUfRD9M1h_nAR4jJYu5cih02UbwL4DJaUFY2slVlpi_2KOO6Yw_ye8EiuTYTidDi9j97wUYV80Kix8qzuKdi35osT6ftN1EQiFZAhqRPZgIQP-ya4?key=eGq1Bo88XZ_lQ-ZXPu3j4A)
+![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcoahz7Dgs2zFOIVevESKCvk2bcqJpDLgyMh461yBbqVZc-UhD2q5z6UANZfdlQiu3LPpx-cldu4dLw2Id8RFoeb_9bWDEs7Ww05kWzvxX3uJfQn86by8uI6GGRN_TPquwNMJswUCX7zohmqMCptb4KIM3B?key=eGq1Bo88XZ_lQ-ZXPu3j4A)
 
 How to Use TRS?
 ===============
@@ -47,7 +47,7 @@ How to Use TRS?
 -   When are Slack Messages made?
     -----------------------------
 
--   Every Thursday and Sunday morning, Slack messages will be sent out informing about training reports from the last three daysÂ 
+-   Every Thursday and Sunday morning, Slack messages will be sent out informing about training reports from the last three days 
 
 -   Thursday process reports submitted on Mon-Wed
 
@@ -56,7 +56,7 @@ How to Use TRS?
 -   When will Reports & Emails be processed?
     ----------------------------------------
 
--   Every Thursday and Sunday morning, Slack messages will be sent out informing about training reports from the last three daysÂ 
+-   Every Thursday and Sunday morning, Slack messages will be sent out informing about training reports from the last three days 
 
 -   Thursday process reports submitted on Mon-Wed
 
@@ -65,13 +65,11 @@ How to Use TRS?
 What is the Skill Chart
 =======================
 
--   A spreadsheet that visualizes what positions are known by what team members. If a team member knows a position, the appropriate cell will be color coded
-
-![Screenshot 2024-08-18 203333](https://github-production-user-asset-6210df.s3.amazonaws.com/92802691/358949586-31a917f9-27fb-4c5c-8d37-188113cdb6bc.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240819%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240819T010436Z&X-Amz-Expires=300&X-Amz-Signature=fede8caec886985bfe7073a8334ed53a393660be5cebfa045838c147261893a6&X-Amz-SignedHeaders=host&actor_id=92802691&key_id=0&repo_id=835940857)
+-   A spreadsheet that visualizes what positions are known by what team members. If a team member knows a position, the appropriate cell will be color coded![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXdDUOTOcVnS2ENjP5IoL2DHs84PlQwVSpSxorM4voDNIdJvcA-LoIiqt7RMz235kILNJoAcTp5PuOUd_O5ryo9eBvMwfkpAntX1DO6dCfjRgNSaU-Yf51LRZMmZ4q_-rnf9G1C-3OkbiRmHw0y49fhezHJV?key=eGq1Bo88XZ_lQ-ZXPu3j4A)
 
 Figure 1: Example Overview of Skill Chart. Please reference the Skill Key for Figure 2.
 
-![Screenshot 2024-08-18 203404]
+![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcVMGQowRGqFgI5YIv4jMODFV1FGgNIWGp2f9yFJYuR5o2j_gcTmpIzFZZCBUXVz6jSNN7Znf-QZnxiJLXk1DA8ia712UDXUhPyirw4mNHHDUEbRIRf1EBorofkuI9zeZqpqhsJdQ4Q40qzEsS9dCddtBan?key=eGq1Bo88XZ_lQ-ZXPu3j4A)
 
 Figure 2: A color-coded key indicating skill levels
 
@@ -82,7 +80,7 @@ Who can make requests?
 
 -   Note: Not every training needs to be the result of a request, it exists solely for team members to easily reach the Training Coordinator.
 
--   Note: Requests that are 4 months old will be DELETED regardless of fulfillment status. This protocol exists for storage purposes.Â 
+-   Note: Requests that are 4 months old will be DELETED regardless of fulfillment status. This protocol exists for storage purposes. 
 
 Who has access?
 ---------------
@@ -117,7 +115,7 @@ Desired Benefits
 
 -   Case 1: Help leads position team members
 
--   New employees
+-   New employees 
 
 -   Positioning am workers at night
 
@@ -129,9 +127,9 @@ Desired Benefits
 
 -   Ultimately: Take some pressure off leads
 
--   Build a more versatile teamÂ 
+-   Build a more versatile team 
 
--   Allow older team members to continuously have the opportunity to developÂ 
+-   Allow older team members to continuously have the opportunity to develop 
 
 -   Allow leads to an easier way to provide input on how team members perform
 
@@ -139,11 +137,11 @@ Desired Benefits
 
 -   Allow old team members refresher sessions
 
--   Legitimize retraining as an avenue to educate on a position's nuisanceÂ 
+-   Legitimize retraining as an avenue to educate on a position's nuisance 
 
 -   Ultimately: Strengthen the training experience & Minimize the unequal distribution of skills (i.e. raw spray, prep)
 
--   Bonus: Minimize pressure off of leads who can focus more on running operations andÂ  completing secondary tasks/cleaning. Focus less on micromanaging. Worry less about weak points in a setup by eliminating them.
+-   Bonus: Minimize pressure off of leads who can focus more on running operations and  completing secondary tasks/cleaning. Focus less on micromanaging. Worry less about weak points in a setup by eliminating them.
 
 Future Expansions
 =================
@@ -152,9 +150,9 @@ Future Expansions
 
 -   Reinforcement report
 
--   A jolt checklist for each position that'll be used to "grade" a team members knowledge of the station,Â 
+-   A jolt checklist for each position that'll be used to "grade" a team members knowledge of the station, 
 
--   Focuses more on the greater nuisance of a position, proper procedures, flexibility, speed, and accuracyÂ 
+-   Focuses more on the greater nuisance of a position, proper procedures, flexibility, speed, and accuracy 
 
 -   Goal: Provide a clear rubric of what we'd want from an ideal worker
 
@@ -164,11 +162,11 @@ Future Expansions
 
 -   I.e. Thaw Cabinets, Vector Ovens, Dishwasher, etc.
 
--   Assistant Desktop App
+-   Assistant Desktop App 
 
 -   Can create new Reinforcement Reports that follow proper Jolt setup
 
--   Can print an overview report of a team member, showing their ranking for each position
+-   Can print an overview report of a team member, showing their ranking for each position 
 
 Drawbacks & Anomalies
 =====================
