@@ -1,6 +1,6 @@
-# What is TRS?Â 
+# What is TRS?
 
-The Training Report SystemÂ 
+The Training Report SystemÂ
 ---------------------------
 
 -   A web application, designed to retrieve data from submitted Jolt reports and process it to fulfill unique training tasks for my workplace. TRS runs twice a week and uses Google SheetsÂ  as a "database" to store information related to these tasks.Â 
@@ -117,7 +117,7 @@ Desired Benefits
 
 -   Case 1: Help leads position team members
 
--   New employeesÂ 
+-   New employees
 
 -   Positioning am workers at night
 
@@ -164,11 +164,11 @@ Future Expansions
 
 -   I.e. Thaw Cabinets, Vector Ovens, Dishwasher, etc.
 
--   Assistant Desktop AppÂ 
+-   Assistant Desktop App
 
 -   Can create new Reinforcement Reports that follow proper Jolt setup
 
--   Can print an overview report of a team member, showing their ranking for each positionÂ 
+-   Can print an overview report of a team member, showing their ranking for each position
 
 Drawbacks & Anomalies
 =====================
