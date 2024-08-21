@@ -86,7 +86,7 @@ def downloadCSVs(listNames, listNames2, startDate=None, endDate=None):
     list_of_titles = driver.find_elements(By.CLASS_NAME, "left-column-item-title")  #Gathers all list titles
     for t in list_of_titles:        #Find desired lists and download the CSV file
         title = t.find_element(By.TAG_NAME, "span").text.lower()
-        print(title)
+        #print(title)
         if title in lowercaseNames2: 
             t.click()
             time.sleep(3)
