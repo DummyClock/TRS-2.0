@@ -70,7 +70,6 @@ def readReportFiles(path, client):
 
                 all_request_rows = ss.get_worksheet_by_id(REG_REQUEST_ID).get_all_values()
                 all_retrain_rows = ss.get_worksheet_by_id(RETRAIN_REQUEST_ID).get_all_values()
-                api_request = 4
             except (APIError, GSpreadException) as e:
                 # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
                 print("Timeout 1")
@@ -130,7 +129,6 @@ def readReportFiles(path, client):
     if len(skillChartBatch) != 0:
         body = {'requests': skillChartBatch}
         ss.batch_update(body=body)
-        #ss.get_worksheet_by_id(SKILL_SHEET_ID).sort((1, 'asc'))       # Sort
 
     return skillChartBatch
 
@@ -292,10 +290,13 @@ def checkRequestSheet(trainee_name, position, all_data, sheet_id):
 # Returns a batch for the cell to color in; this'll document that the trainee has learned a new position
 def rowBatch_sc(trainee, pos, rating, rows, sheet_id):
             # Set the color based on the rating
-            color = getColor(rating)
-
-            #Find column
-            col = rows[0].index(pos)
+            if isinstance(rating, str):
+                color = getColor(rating)    # string version
+            else:
+                color = getColor_forReinforcement(rating)   # int version
+            
+            # Find column
+            col = rows[0].index(pos)                    
 
             #Find Row w/ matching trainee name & Edit (INCOMPLETE)
             found = False
@@ -385,25 +386,123 @@ def getColor(rating):
     elif rating == '5':
         return {"red": 1,"green": 1,"blue": 0}              # Yellow
 
-    
     # Default (Error)
     print("Color for rating not found")
     return {"red": 0,"green": 0,"blue": 0}
 
-"""WILL USE FOR REINFORCEMENT REPORT
-    if rating == '1':
-        return {"red": 50,"green": 0,"blue": 0}             # Red
-    elif rating == '2':
-        return {"red": 1,"green": 0.647,"blue": 0}          # Orange
-    elif rating == '3':
-        return {"red": 1,"green": 1,"blue": 0}              # Yellow
-    elif rating == '4':
+def readReinforcementFiles(path, scores, client):
+    # Values to search for within the downloaded csv files
+    trainer_value = 'Observer (You)'
+    trainee_value = 'Who is being assessed?'
+    date_value = "Date"
+    summ_value = "Please provide your opinion on the team member's performance"
+    email_request_value = "Would the trainee like to be emailed a training report?"
+    pref_lang_value = "Trainee's Preferred Language"
+    email_value = 'Trainee Email'
+    email_body_value = 'Advice & Feedback for Trainee'
+
+    #Loop through files in directory
+    downloadedFiles = os.listdir(path)
+    skillChartBatch = []
+    for f in downloadedFiles:
+        # Convert csv file into dataframe
+        file_path = os.path.join(path, f)
+        df = pd.read_csv(file_path).T.drop_duplicates()
+        new_header = df.iloc[0]  
+        df = df[1:]  
+        df.columns = new_header  
+        #print(df)
+        
+        # Get the columns indicies for specific header values
+        trainer_value_col = df.columns.get_loc(trainer_value)
+        trainee_value_col = df.columns.get_loc(trainee_value)
+        date_value_col =  df.columns.get_loc(date_value)
+        summ_value_col = df.columns.get_loc(summ_value)
+        email_request_col = df.columns.get_loc(email_request_value)
+        pref_lang_col = df.columns.get_loc(pref_lang_value)
+        email_value_col = df.columns.get_loc(email_value)
+        email_body_value_col = df.columns.get_loc(email_body_value)
+        
+        #Get position name
+        posName = df.columns[0]
+
+        # Attempt to Gather All 3 sheet values
+        api_error = True
+        api_error_counter = 3
+        while api_error and api_error_counter > 0:
+            try:
+                api_error = False
+                ss = client.open_by_key(SPREADSHEET_ID)
+                skill_sheet = ss.get_worksheet_by_id(SKILL_SHEET_ID)
+                all_skill_rows = skill_sheet.get_all_values()
+            except (APIError, GSpreadException) as e:
+                # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
+                print("Timeout 1")
+                api_error = apiTimeOut(api_error_counter)
+                api_error_counter -= 1
+
+        # Read each row for specific values & perform processes
+        index = 0
+        for rows in range(df.shape[0]):
+            #Skip if missing data exists (only checks trainee name)
+            if df.iloc[rows,trainee_value_col] == "--":
+                continue
+
+            #Fix Name Format in dataframe to be: Last, First
+            name=df.iloc[rows,trainee_value_col].split()
+            df.iloc[rows,trainee_value_col] = name[1] + ", " + name[0]
+
+            #Build the batch for the skill chart
+            #print(df.iloc[rows,trainee_value_col])
+            #print(scores)
+            skillChartBatch.append(rowBatch_sc(df.iloc[rows,trainee_value_col], posName, float(scores[index]), all_skill_rows, SKILL_SHEET_ID))
+
+            #Slack Message
+            extendedDetails = 'Score: ' + scores[index] + '\n' + str(df.iloc[rows,summ_value_col])
+            #slackMsg(str(df.iloc[rows,trainer_value_col]), str(df.iloc[rows,trainee_value_col]), posName, extendedDetails, str(df.iloc[rows,email_body_value_col]))
+
+            #Set language encoding
+            if df.iloc[rows,pref_lang_col] == "Spanish":
+                lang = 'es'
+            else:
+                lang = 'en'
+            
+            #Email Trainee (if requested)
+            if df.iloc[rows, email_request_col] == "YES":
+                print("Attempting to send email.")
+                headers = [df.iloc[rows,trainee_value_col], df.iloc[rows,trainer_value_col], posName, scores[index], df.iloc[rows,email_body_value_col]]
+                trainer_data = ["Trainee", "Trainer","Position", "Score", "Shift Summary"]
+                sendHTMLEmail(headers,trainer_data,df.iloc[rows, email_value_col], lang)
+            else:
+                print("Email was not requested.")
+
+            #Update Index
+            index = index + 1        
+
+    #Commit batch update in Skill Chart
+    if len(skillChartBatch) != 0:
+        body = {'requests': skillChartBatch}
+        ss.batch_update(body=body)
+
+    return skillChartBatch
+
+
+
+def getColor_forReinforcement(score):
+    if score >= 90:
+        return {"red": 0,"green": 175,"blue": 0}            # Dark Green
+    elif score >= 80:
         return {"red": 0,"green": 0,"blue": 10}             # Blue
-    elif rating == '5':
-        return {"red": 0,"green": 10,"blue": 0}             # Green
-                                                            # Missing Dark Green  
-"""
-                                                                              
+    elif score >= 70:
+        return {"red": 1,"green": 1,"blue": 0}              # Yellow
+    elif score >= 60:
+        return {"red": 1,"green": 0.647,"blue": 0}          # Orange
+    elif score >= 50:
+        return {"red": 50,"green": 0,"blue": 0}             # Red
+    else:
+        print("Color for rating not found")
+        return {"red": 0,"green": 0,"blue": 0}              # Default
+
 def formatRequestBatch(row, columns, values):
     a1_notation = {}
     for i in range(len(columns)):
