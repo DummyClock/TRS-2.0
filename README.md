@@ -150,9 +150,9 @@ Future Expansions
 
 -   Reinforcement report
 
--   A jolt checklist for each position that'll be used to "grade" a team members knowledge of the station, 
+-   ~~A jolt checklist for each position that'll be used to "grade" a team members knowledge of the station~~
 
--   Focuses more on the greater nuisance of a position, proper procedures, flexibility, speed, and accuracy 
+        -~~Focuses more on the greater nuisance of a position, proper procedures, flexibility, speed, and accuracy~~
 
 -   Goal: Provide a clear rubric of what we'd want from an ideal worker
 
@@ -164,7 +164,7 @@ Future Expansions
 
 -   Assistant Desktop App 
 
--   Can create new Reinforcement Reports that follow proper Jolt setup
+-  ~~Can create new Reinforcement Reports that follow proper Jolt setup~~
 
 -   Can print an overview report of a team member, showing their ranking for each position 
 
