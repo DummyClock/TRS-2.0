@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 TRAINER_GMAIL = os.environ['TRAINER_GMAIL']
 TRAINER_GMAIL_PASSWORD = os.environ['TRAINER_GMAIL_PASSWORD']
 
+
 def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver, lang):
     #Prepare HTML report
     html = buildHTMLPart(row_of_headers, row_of_trainer_data)
