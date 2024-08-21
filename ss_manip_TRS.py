@@ -24,7 +24,7 @@ def readReportFiles(path, client):
     date_value = "Date"
     pos_value = 'Position Trainee was Trained On'
     rating_value = 'Please rate the Trainee 1-5 (Use the rubric above)'
-    summ_value = 'Please provide a summary of the shift. (Please highlight the positive and your concerns).'
+    summ_value = "Please provide your opinion on the team member's performance"
     email_request_value = "Would the trainee like to be emailed a training report?"
     pref_lang_value = "Trainee's Preferred Language"
     email_value = 'Trainee Email'
