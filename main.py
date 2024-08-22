@@ -1,5 +1,5 @@
 import os, json, gspread, time
-from jolt_scraper_v4 import downloadCSVs, downloadCSVs_forReinforcements
+from jolt_scraper_v4 import downloadCSVs
 from google.oauth2.service_account import Credentials
 from ss_manip_TRS import readReportFiles, readRequestFiles, readReinforcementFiles
 from selenium.common.exceptions import WebDriverException
@@ -22,8 +22,9 @@ if __name__ == "__main__":
     client = gspread.authorize(creds)
 
     #Store the desired list names to download
-    listName = ["TRS (TEST): BOH Training Report".lower()]
-    listName2 = ["TRS (TEST): Request Training/Retraining (BOH)".lower()]
+    listName = "TRS (TEST): BOH Training Report"
+    listName2 = "TRS (TEST): Request Training/Retraining (BOH)"
+    reinforceListName = "TRS: Reinforcement"
 
     # Download files with desired names; will reattempt 3x if a connection error occurs
     attemps = 0
@@ -32,10 +33,8 @@ if __name__ == "__main__":
     while errorOccured and attemps < maxAttempts:
         try:
             errorOccured = False
-            paths = downloadCSVs(listName, listName2)
-
-            listName = "TRS: Reinforcement".lower()
-            path, scores = downloadCSVs_forReinforcements(listName)
+            path, path2, path3, scores = downloadCSVs(listName, listName2, reinforceListName)
+            #path, scores = downloadCSVs_forReinforcements(reinforceListName)
         except WebDriverException as e:
             print("Connection error occured. Reattempting to launch in a minute...")
             errorOccured = True
@@ -49,19 +48,22 @@ if __name__ == "__main__":
             time.sleep(60)
 
     # Check if downloadCSV (part 1) was successful
-    if os.path.exists(paths[0]):
-        readReportFiles(paths[0], client)
+    if os.path.exists(path):
+        print("-Reading training reports")
+        readReportFiles(path, client)
     else:
-        print("Unable to find " + str(paths[0]))
+        print("[x]Unable to find " + str(path))
 
     # Check if downloadCSV (part 2) was successful
-    if os.path.exists(paths[1]):
-        readRequestFiles(paths[1], client)
+    if os.path.exists(path2):
+        print("-Reading training requests")
+        readRequestFiles(path2, client)
     else:
-        print("Unable to find " + str(paths[1]))
+        print("[x]Unable to find " + str(path2))
     
     # Download file for reinforcement reports
-    if os.path.exists(path):
-        readReinforcementFiles(path, scores, client)
+    if os.path.exists(path3):
+        print("-Reading reinforcement reports")
+        readReinforcementFiles(path3, scores, client)
     else:
-        print("Unable to find " + str(path))
+        print("[x]Unable to find " + str(path3))
