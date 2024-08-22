@@ -223,6 +223,109 @@ def readRequestFiles(path, client):
 
     return
 
+def readReinforcementFiles(path, scores, client):
+    # Values to search for within the downloaded csv files
+    trainer_value = 'Observer (You)'
+    trainee_value = 'Who is being assessed?'
+    date_value = "Date"
+    summ_value = "Please provide your opinion on the team member's performance"
+    email_request_value = "Would the trainee like to be emailed a training report?"
+    pref_lang_value = "Trainee's Preferred Language"
+    email_value = 'Trainee Email'
+    email_body_value = 'Advice & Feedback for Trainee'
+    questions_start = '- Start of Reinforcement Questions'
+    questions_end = '- End of Reinforcement Questions'
+
+    #Loop through files in directory
+    downloadedFiles = os.listdir(path)
+    skillChartBatch = []
+    for f in downloadedFiles:
+        # Convert csv file into dataframe
+        file_path = os.path.join(path, f)
+        df = pd.read_csv(file_path).T.drop_duplicates()
+        new_header = df.iloc[0]  
+        df = df[1:]  
+        df.columns = new_header  
+        
+        # Get the columns indicies for specific header values
+        trainer_value_col = df.columns.get_loc(trainer_value)
+        trainee_value_col = df.columns.get_loc(trainee_value)
+        date_value_col =  df.columns.get_loc(date_value)
+        summ_value_col = df.columns.get_loc(summ_value)
+        email_request_col = df.columns.get_loc(email_request_value)
+        pref_lang_col = df.columns.get_loc(pref_lang_value)
+        email_value_col = df.columns.get_loc(email_value)
+        email_body_value_col = df.columns.get_loc(email_body_value)
+        questions_start_col = df.columns.get_loc(questions_start)
+        questions_end_col = df.columns.get_loc(questions_end)
+        
+        #Get position name
+        posName = df.columns[0]
+
+        # Attempt to Gather All 3 sheet values
+        api_error = True
+        api_error_counter = 3
+        while api_error and api_error_counter > 0:
+            try:
+                api_error = False
+                ss = client.open_by_key(SPREADSHEET_ID)
+                skill_sheet = ss.get_worksheet_by_id(SKILL_SHEET_ID)
+                all_skill_rows = skill_sheet.get_all_values()
+            except (APIError, GSpreadException) as e:
+                # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
+                print("Timeout 1")
+                api_error = apiTimeOut(api_error_counter)
+                api_error_counter -= 1
+
+        # Read each row for specific values & perform processes
+        index = 0
+        for rows in range(df.shape[0]):
+            #Skip if missing data exists (only checks trainee name)
+            if df.iloc[rows,trainee_value_col] == "--":
+                continue
+
+            #Fix Name Format in dataframe to be: Last, First
+            name=df.iloc[rows,trainee_value_col].split()
+            df.iloc[rows,trainee_value_col] = name[1] + ", " + name[0]
+
+            #Build the batch for the skill chart
+            skillChartBatch.append(rowBatch_sc(df.iloc[rows,trainee_value_col], posName, float(scores[index]), all_skill_rows, SKILL_SHEET_ID))
+
+            #Slack Message
+            extendedDetails = 'Score: ' + scores[index] + '\n' + str(df.iloc[rows,summ_value_col])
+            #slackMsg(str(df.iloc[rows,trainer_value_col]), str(df.iloc[rows,trainee_value_col]), posName, extendedDetails, str(df.iloc[rows,email_body_value_col]))
+
+            #Set language encoding
+            if df.iloc[rows,pref_lang_col] == "Spanish":
+                lang = 'es'
+            else:
+                lang = 'en'
+            
+            #Email Trainee (if requested)
+            if df.iloc[rows, email_request_col] == "YES":
+                print("Attempting to send email.")
+                # Get headers & trainer_data
+                trainer_data = [df.iloc[rows,trainee_value_col], df.iloc[rows,trainer_value_col], posName, scores[index], df.iloc[rows,email_body_value_col]]
+                headers = ["Trainee", "Trainer","Position", "Score", "Shift Summary"]
+
+                # Extend lists
+                headers.extend(df.columns[questions_start_col + 1:questions_end_col])
+                if questions_start_col + 1 <= questions_end_col-1 and questions_start_col < len(df.columns):
+                    trainer_data.extend(df.iloc[rows, questions_start_col + 1:questions_end_col].tolist())
+                sendHTMLEmail(trainer_data, headers, df.iloc[rows, email_value_col], lang)
+            else:
+                print("Email was not requested.")
+
+            #Update Index
+            index = index + 1        
+
+    #Commit batch update in Skill Chart
+    if len(skillChartBatch) != 0:
+        body = {'requests': skillChartBatch}
+        ss.batch_update(body=body)
+
+    return skillChartBatch
+
 # Send a slack message documenting completed training/retraining reports
 def slackMsg(trainer, pupil, pos, details, feedback):
     # Replace this URL with your Slack Incoming Webhook URL
@@ -390,104 +493,6 @@ def getColor(rating):
     print("Color for rating not found")
     return {"red": 0,"green": 0,"blue": 0}
 
-def readReinforcementFiles(path, scores, client):
-    # Values to search for within the downloaded csv files
-    trainer_value = 'Observer (You)'
-    trainee_value = 'Who is being assessed?'
-    date_value = "Date"
-    summ_value = "Please provide your opinion on the team member's performance"
-    email_request_value = "Would the trainee like to be emailed a training report?"
-    pref_lang_value = "Trainee's Preferred Language"
-    email_value = 'Trainee Email'
-    email_body_value = 'Advice & Feedback for Trainee'
-
-    #Loop through files in directory
-    downloadedFiles = os.listdir(path)
-    skillChartBatch = []
-    for f in downloadedFiles:
-        # Convert csv file into dataframe
-        file_path = os.path.join(path, f)
-        df = pd.read_csv(file_path).T.drop_duplicates()
-        new_header = df.iloc[0]  
-        df = df[1:]  
-        df.columns = new_header  
-        #print(df)
-        
-        # Get the columns indicies for specific header values
-        trainer_value_col = df.columns.get_loc(trainer_value)
-        trainee_value_col = df.columns.get_loc(trainee_value)
-        date_value_col =  df.columns.get_loc(date_value)
-        summ_value_col = df.columns.get_loc(summ_value)
-        email_request_col = df.columns.get_loc(email_request_value)
-        pref_lang_col = df.columns.get_loc(pref_lang_value)
-        email_value_col = df.columns.get_loc(email_value)
-        email_body_value_col = df.columns.get_loc(email_body_value)
-        
-        #Get position name
-        posName = df.columns[0]
-
-        # Attempt to Gather All 3 sheet values
-        api_error = True
-        api_error_counter = 3
-        while api_error and api_error_counter > 0:
-            try:
-                api_error = False
-                ss = client.open_by_key(SPREADSHEET_ID)
-                skill_sheet = ss.get_worksheet_by_id(SKILL_SHEET_ID)
-                all_skill_rows = skill_sheet.get_all_values()
-            except (APIError, GSpreadException) as e:
-                # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
-                print("Timeout 1")
-                api_error = apiTimeOut(api_error_counter)
-                api_error_counter -= 1
-
-        # Read each row for specific values & perform processes
-        index = 0
-        for rows in range(df.shape[0]):
-            #Skip if missing data exists (only checks trainee name)
-            if df.iloc[rows,trainee_value_col] == "--":
-                continue
-
-            #Fix Name Format in dataframe to be: Last, First
-            name=df.iloc[rows,trainee_value_col].split()
-            df.iloc[rows,trainee_value_col] = name[1] + ", " + name[0]
-
-            #Build the batch for the skill chart
-            #print(df.iloc[rows,trainee_value_col])
-            #print(scores)
-            skillChartBatch.append(rowBatch_sc(df.iloc[rows,trainee_value_col], posName, float(scores[index]), all_skill_rows, SKILL_SHEET_ID))
-
-            #Slack Message
-            extendedDetails = 'Score: ' + scores[index] + '\n' + str(df.iloc[rows,summ_value_col])
-            #slackMsg(str(df.iloc[rows,trainer_value_col]), str(df.iloc[rows,trainee_value_col]), posName, extendedDetails, str(df.iloc[rows,email_body_value_col]))
-
-            #Set language encoding
-            if df.iloc[rows,pref_lang_col] == "Spanish":
-                lang = 'es'
-            else:
-                lang = 'en'
-            
-            #Email Trainee (if requested)
-            if df.iloc[rows, email_request_col] == "YES":
-                print("Attempting to send email.")
-                headers = [df.iloc[rows,trainee_value_col], df.iloc[rows,trainer_value_col], posName, scores[index], df.iloc[rows,email_body_value_col]]
-                trainer_data = ["Trainee", "Trainer","Position", "Score", "Shift Summary"]
-                sendHTMLEmail(headers,trainer_data,df.iloc[rows, email_value_col], lang)
-            else:
-                print("Email was not requested.")
-
-            #Update Index
-            index = index + 1        
-
-    #Commit batch update in Skill Chart
-    if len(skillChartBatch) != 0:
-        body = {'requests': skillChartBatch}
-        ss.batch_update(body=body)
-
-    return skillChartBatch
-
-
-
 def getColor_forReinforcement(score):
     if score >= 90:
         return {"red": 0,"green": 175,"blue": 0}            # Dark Green
@@ -530,9 +535,6 @@ def apiTimeOut(api_error_counter):
     else:
         print("Unable to Google Sheets API right now. Skipping this process.")
     return True
-
-
-
 
 #Testing code
 if __name__ == "__main__":
