@@ -8,16 +8,15 @@ from email.mime.multipart import MIMEMultipart
 TRAINER_GMAIL = os.environ['TRAINER_GMAIL']
 TRAINER_GMAIL_PASSWORD = os.environ['TRAINER_GMAIL_PASSWORD']
 
-
-def sendHTMLEmail(row_of_headers, row_of_trainer_data, receiver, lang):
+def sendHTMLEmail(row_of_trainer_data, row_of_headers, receiver, lang):
     #Prepare HTML report
-    html = buildHTMLPart(row_of_headers, row_of_trainer_data)
+    html = buildHTMLPart(row_of_trainer_data, row_of_headers)
 
     #Prepare email credentials
     smtpObj = smtplib.SMTP()
     sender = TRAINER_GMAIL
     message = MIMEMultipart("Alternative")
-    subject = "Training Report for [" +  row_of_headers[row_of_trainer_data.index("Position")] +"] | Chick-Fil-A"
+    subject = "Training Report for [" +  row_of_trainer_data[row_of_headers.index("Position")] +"] | Chick-Fil-A"
     message["Subject"] = subject
     message["From"] = sender
     message["To"] = receiver
