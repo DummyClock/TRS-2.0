@@ -239,7 +239,13 @@ def getPathwaysButtons(position):
     return buttons
 
 def generateHTMLButton(link, text, img):
-
     return  "<div class='button'><div class='img-section'><a href=" +link +"><img src='"+ img + "' alt='Training Module' width=100px></a></div><div class='text-section'><a style='text-decoration:none' href="+ link + "><div><h4>"+text+"</h4></div></a></div></div>"
 
 def apiTimeOut(api_error_counter):
+    # If API Error occurs, reattempt to access Google Sheets API (MAX ATTEMPS = 3)
+    if api_error_counter > 0: 
+        print("Minute Quota for Google Sheets API reached (CLEANING_SPREADSHEET). Will attempt to access again. \n\tPlease wait a moment...\n\tAttempts Left: " + str(api_error_counter))
+        time.sleep(66)  
+    else:
+        print("Unable to Google Sheets API right now. Skipping this process.")
+    return True
