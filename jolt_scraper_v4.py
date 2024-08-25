@@ -70,7 +70,6 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
         if title in trainingListName: 
             t.click()
             time.sleep(3)
-            #print("hit1")
             driver.find_element(By.CLASS_NAME, "list-download").click()
             time.sleep(5)
 
@@ -87,7 +86,6 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
     list_of_titles = driver.find_elements(By.CLASS_NAME, "left-column-item-title")  #Gathers all list titles
     for t in list_of_titles:        #Find desired lists and download the CSV file
         title = t.find_element(By.TAG_NAME, "span").text.lower()
-        #print(title)
         if title in reqListName: 
             t.click()
             time.sleep(3)
@@ -103,6 +101,7 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
         'behavior': 'allow',
         'downloadPath': download_dir3
     })
+    downloaded = False
     reinforceListName = reinforceListName.lower()
     list_of_titles = driver.find_elements(By.CLASS_NAME, "left-column-item-title")  #Gathers all list titles
     for t in list_of_titles:       #Find desired lists and download the CSV file
@@ -111,25 +110,27 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
         if reinforceListName in title: 
             t.click()
             time.sleep(3)
-            #print("hit2")
+            downloaded = True
             driver.find_element(By.CLASS_NAME, "list-download").click()
             time.sleep(5)
 
     #Pull Scores for each Checklists
-    driver.get('https://app.joltup.com/review/review/listResultsReporting/lists')
-    time.sleep(5)
-    #dateRange(driver, startDate, endDate)
-    scores = []
-    jolt_rows = driver.find_elements(By.CLASS_NAME, 'browse-lists-table-row')
-    for row in jolt_rows:
-        row_match = False
-        for row_elements in row.find_elements(By.XPATH, './*'):
-            element_text = row_elements.text.lower()
-            if reinforceListName in element_text:
-                row_match = True
-            if row_match and re.search(r'\([0-9.]{0,7}%\)', row_elements.text):
-                score = row_elements.text.split(" ")[1]
-                scores.append(score[1:-2])
+    if(downloaded):
+        driver.get('https://app.joltup.com/review/review/listResultsReporting/lists')
+        time.sleep(5)
+        driver.find_element(By.CSS_SELECTOR, '[title="List Template Title"]').click() 
+        dateRange(driver, startDate, endDate)       # Set date range
+        scores = []
+        jolt_rows = driver.find_elements(By.CLASS_NAME, 'browse-lists-table-row')
+        for row in jolt_rows:
+            row_match = False
+            for row_elements in row.find_elements(By.XPATH, './*'):
+                element_text = row_elements.text.lower()
+                if reinforceListName in element_text:
+                    row_match = True
+                if row_match and re.search(r'\([0-9.]{0,7}%\)', row_elements.text):
+                    score = row_elements.text.split(" ")[1]
+                    scores.append(score[1:-2])
 
     #Logout
     driver.get("https://app.joltup.com/site/logout")
