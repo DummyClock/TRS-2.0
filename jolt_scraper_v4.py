@@ -61,12 +61,10 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
         'behavior': 'allow',
         'downloadPath': download_dir
     })
-    #lowercaseNames = [name.lower() for name in trainingListName]       #Turns desired lists' names lowercase
     trainingListName = trainingListName.lower()
     list_of_titles = driver.find_elements(By.CLASS_NAME, "left-column-item-title")  #Gathers all list titles
     for t in list_of_titles:       #Find desired lists and download the CSV file
         title = t.find_element(By.TAG_NAME, "span").text.lower()
-        #print(title)
         if title in trainingListName: 
             t.click()
             time.sleep(3)
@@ -81,7 +79,6 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
         'behavior': 'allow',
         'downloadPath': download_dir2
     })
-    #lowercaseNames2 = [name.lower() for name in reqListName]       #Turns desired lists' names lowercase
     reqListName = reqListName.lower()
     list_of_titles = driver.find_elements(By.CLASS_NAME, "left-column-item-title")  #Gathers all list titles
     for t in list_of_titles:        #Find desired lists and download the CSV file
@@ -96,17 +93,16 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
     print("\t~Downloading files for reinforcement lists")
     if reinforceListName == None:
         return download_dir, download_dir2
-    
     driver.execute_cdp_cmd('Page.setDownloadBehavior', {
         'behavior': 'allow',
         'downloadPath': download_dir3
     })
     downloaded = False
+    scores = []
     reinforceListName = reinforceListName.lower()
     list_of_titles = driver.find_elements(By.CLASS_NAME, "left-column-item-title")  #Gathers all list titles
     for t in list_of_titles:       #Find desired lists and download the CSV file
         title = t.find_element(By.TAG_NAME, "span").text.lower()
-        #print(title + "|" + reinforceListName)
         if reinforceListName in title: 
             t.click()
             time.sleep(3)
@@ -120,7 +116,6 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
         time.sleep(5)
         driver.find_element(By.CSS_SELECTOR, '[title="List Template Title"]').click() 
         dateRange(driver, startDate, endDate)       # Set date range
-        scores = []
         jolt_rows = driver.find_elements(By.CLASS_NAME, 'browse-lists-table-row')
         for row in jolt_rows:
             row_match = False
