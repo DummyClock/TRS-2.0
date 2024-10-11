@@ -121,14 +121,38 @@ def readReportFiles(path, client):
                 print("Email was not requested.")
 
     #Comit batch update in Request Charts
-    if len(requestBatch) != 0:
-        body = {'requests': requestBatch}
-        ss.batch_update(body=body)
+        #Comit batch update in Request Charts
+    api_e_attempt = 3
+    while api_e_attempt > 0:
+        try:
+            if len(requestBatch) != 0:
+                body = {'requests': requestBatch}
+                ss.batch_update(body=body)
+        except APIError as e:
+            api_e_attempt = api_e_attempt - 1
+            if api_e_attempt > 0:
+                print("API ERROR OCCURED! Reattempting to access in 1 minute and 30 seconds...")
+                time.sleep(90)
+            else:
+                print("APIError Code: " + f"APIError: {e.response.status_code}")
+                raise Exception("Failed to connect to API at this moment. Please refer to the APIError's documentation: \n\thttps://docs.gspread.org/en/latest/api/exceptions.html")
+
 
     #Commit batch update in Skill Chart
-    if len(skillChartBatch) != 0:
-        body = {'requests': skillChartBatch}
-        ss.batch_update(body=body)
+    api_e_attempt = 3
+    while api_e_attempt > 0:
+        try:
+            if len(skillChartBatch) != 0:
+                body = {'requests': skillChartBatch}
+                ss.batch_update(body=body)
+        except APIError as e:
+            api_e_attempt = api_e_attempt - 1
+            if api_e_attempt > 0:
+                print("API ERROR OCCURED! Reattempting to access in 1 minute and 30 seconds...")
+                time.sleep(90)
+            else:
+                print("APIError Code: " + f"APIError: {e.response.status_code}")
+                raise Exception("Failed to connect to API at this moment. Please refer to the APIError's documentation: \n\thttps://docs.gspread.org/en/latest/api/exceptions.html")
 
     return skillChartBatch
 
@@ -320,9 +344,21 @@ def readReinforcementFiles(path, scores, client):
             index = index + 1        
 
     #Commit batch update in Skill Chart
-    if len(skillChartBatch) != 0:
-        body = {'requests': skillChartBatch}
-        ss.batch_update(body=body)
+    api_e_attempt = 3
+    while api_e_attempt > 0:
+        try:
+            if len(skillChartBatch) != 0:
+                body = {'requests': skillChartBatch}
+                ss.batch_update(body=body)
+        except APIError as e:
+                api_e_attempt = api_e_attempt - 1
+                if api_e_attempt > 0:
+                    print("API ERROR OCCURED! Reattempting to access in 1 minute and 30 seconds...")
+                    time.sleep(90)
+                else:
+                    print("APIError Code: " + f"APIError: {e.response.status_code}")
+                    raise Exception("Failed to connect to API at this moment. Please refer to the APIError's documentation: \n\thttps://docs.gspread.org/en/latest/api/exceptions.html")
+
 
     return skillChartBatch
 
