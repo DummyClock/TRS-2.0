@@ -120,7 +120,7 @@ def readReportFiles(path, client):
             else:
                 print("Email was not requested.")
 
-    #Comit batch update in Request Charts
+    #Commit batch update in Request Charts
     api_e_attempt = 3
     while api_e_attempt > 0:
         try:
@@ -351,6 +351,7 @@ def readReinforcementFiles(path, scores, client):
             if len(skillChartBatch) != 0:
                 body = {'requests': skillChartBatch}
                 ss.batch_update(body=body)
+            break
         except APIError as e:
                 api_e_attempt = api_e_attempt - 1
                 if api_e_attempt > 0:
