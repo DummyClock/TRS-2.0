@@ -17,7 +17,7 @@ def downloadCSVs(trainingListName, reqListName=None, reinforceListName=None, sta
     print("Searching for files with the name " + str(trainingListName) + ", " +str(reqListName) + ", & " + reinforceListName)
     if startDate == None and endDate == None:
         endDate = str(date.today() - timedelta(days=1))
-        startDate = str(date.today() - timedelta(days=3))
+        startDate = str(date.today() - timedelta(days=1))
     print("-StartDate:"+startDate+"!")
 
     #Prepare both download locations before launching instance of webdriver in headless mode
